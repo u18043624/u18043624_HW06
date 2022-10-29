@@ -1,0 +1,69 @@
+﻿@model IPagedList<u18043624_HW06.Models.product>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@using PagedList.Mvc;
+@using PagedList;
+
+<h2>Products</h2>
+
+<p>
+
+    @using (Html.BeginForm("Index", "EmpSearch", FormMethod.Get))
+    {
+        <input type="text" name="search" placholder="Enter product name ..." />
+        <input type="submit" name="submit" value="Search" />
+    }
+    <button>@Html.ActionLink("Create New", "Create")</button>
+</p>
+<table class="table">
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Year
+        </th>
+        <th>
+            Price
+        </th>
+        <th>
+            Brand
+        </th>
+        <th>
+            Category
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.product_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.model_year)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.list_price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.brand.brand_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.category.category_name)
+            </td>
+            <td>
+                <button type="button" class="btn btn-success">@Html.ActionLink("Edit", "Edit", new { id = item.product_id })</button>|
+                <button type="button" class="btn btn-dark">@Html.ActionLink("Details", "Details", new { id = item.product_id }) </button>|
+                <button type="button" class="btn btn-danger">@Html.ActionLink("Delete", "Delete", new { id = item.product_id })</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+@Html.PagedListPager(Model,i=>Url.Action("Index","products", new { i,search=Request.QueryString["search"]}))
