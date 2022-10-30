@@ -1,7 +1,63 @@
-﻿
+﻿@model IPagedList<u18043624_HW06.Models.order_items>
 @{
     ViewBag.Title = "Orders";
 }
 
+@using PagedList.Mvc;
+@using PagedList;
+
 <h2>Orders</h2>
 
+<p>
+    @using (Html.BeginForm("Orders", "OrderSearch", FormMethod.Get))
+    {
+        <input type="text" name="search" placholder="yyyy/mm/dd" />
+        <input type="submit" name="submit" value="Search" />
+    }
+</p>
+
+<table class="table">
+
+
+    @foreach (var item in Model)
+    {
+
+        <tr>
+            <th>
+                Product Name
+            </th>
+            <th>
+                List Price
+            </th>
+            <th>
+                Quantity
+            </th>
+            <th>
+                Total
+            </th>
+        </tr>
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.product.product_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.list_price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.total)
+            </td>
+
+        </tr>
+    }
+    <tr>
+        <td></td>
+        <td></td>
+        <td>Grand Total</td>
+    </tr>
+</table>
+
+@Html.PagedListPager(Model, i => Url.Action("Orders", "home", new { i, search = Request.QueryString["search"] }))

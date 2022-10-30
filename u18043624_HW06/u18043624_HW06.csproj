@@ -156,9 +156,11 @@
     <Compile Include="Models\brand.cs">
       <DependentUpon>BikeStoreDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\BrandCRUDClass.cs" />
     <Compile Include="Models\category.cs">
       <DependentUpon>BikeStoreDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CategoryCRUDClass.cs" />
     <Compile Include="Models\customer.cs">
       <DependentUpon>BikeStoreDataModel.tt</DependentUpon>
     </Compile>
@@ -240,11 +242,11 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\products\Create.cshtml" />
     <Content Include="Views\products\Delete.cshtml" />
-    <Content Include="Views\products\Details.cshtml" />
     <Content Include="Views\products\Edit.cshtml" />
     <Content Include="Views\products\Index.cshtml" />
     <Content Include="Views\Home\Orders.cshtml" />
-    <Content Include="Views\products\CreatePartialView.cshtml" />
+    <Content Include="Views\Home\Report.cshtml" />
+    <Content Include="Views\products\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -10,9 +10,10 @@ namespace u18043624_HW06.Models
 		public int product_id;
 		public string product_name;
 		public int brand_id;
-		public string category;
+		public int category_id;
 		public int model_year;
-		public float list_price;
-
+		public decimal list_price;
+		public virtual CategoryCRUDClass category { get; set; }
+		public virtual BrandCRUDClass brand { get; set; }
 	}
 }

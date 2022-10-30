@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "Report";
+}
+
+<h2>Mountain Bike Order Report</h2>
+
+<!DOCTYPE html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js%22%3E</script>
+<html>
+
+<body>
+
+    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+    <script>
+        var xValues = ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        var yValues = [163, 152, 200, 211, 139, 127, 122, 148, 160, 125, 118, 90];
+        var barColors = ["red", "green", "blue", "orange", "brown", "yellow", "purple", "pink", "gray", "Maroon", "Teal", "Lime"];
+
+        new Chart("myChart", {
+            type: "bar",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: "number of bikes over the years "
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

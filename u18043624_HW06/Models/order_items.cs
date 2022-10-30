@@ -20,7 +20,8 @@ namespace u18043624_HW06.Models
         public int quantity { get; set; }
         public decimal list_price { get; set; }
         public decimal discount { get; set; }
-    
+        public decimal total { get { return quantity * list_price; } }
+
         public virtual product product { get; set; }
         public virtual order order { get; set; }
     }
