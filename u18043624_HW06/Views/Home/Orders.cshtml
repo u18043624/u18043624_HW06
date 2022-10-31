@@ -1,4 +1,5 @@
 ﻿@model IPagedList<u18043624_HW06.Models.order_items>
+
 @{
     ViewBag.Title = "Orders";
 }
@@ -16,12 +17,10 @@
     }
 </p>
 
-<table class="table">
-
-
-    @foreach (var item in Model)
-    {
-
+@foreach (var item in Model)
+{
+    <h2>@Html.DisplayFor(modelItem => item.order_id) - @Html.DisplayFor(modelItem => item.order.order_date)</h2>
+    <table class="table">
         <tr>
             <th>
                 Product Name
@@ -37,7 +36,6 @@
             </th>
         </tr>
         <tr>
-
             <td>
                 @Html.DisplayFor(modelItem => item.product.product_name)
             </td>
@@ -52,12 +50,13 @@
             </td>
 
         </tr>
-    }
-    <tr>
-        <td></td>
-        <td></td>
-        <td>Grand Total</td>
-    </tr>
-</table>
+
+        <tr>
+            <td></td>
+            <td></td>
+            <td>Grand Total</td>
+        </tr>
+    </table>
+}
 
 @Html.PagedListPager(Model, i => Url.Action("Orders", "home", new { i, search = Request.QueryString["search"] }))

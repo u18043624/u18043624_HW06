@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using u18043624_HW06.Models.ViewModels;
 using u18043624_HW06.Models;
 //check which used, remove ones that arent
 using PagedList;
@@ -22,65 +23,60 @@ namespace u18043624_HW06.Views
         BikeStoresEntities db = new BikeStoresEntities();
 
         // GET: products
-        public ActionResult Index(string search, int? i)
+        public ActionResult Index(string currentFilter, string searchString, int? page)
         {
             var products = db.products.Include(p => p.brand).Include(p => p.category);
-            return View(db.products.Where(x => x.product_name.StartsWith(search) || search == null).ToList().ToPagedList(i ?? 1, 10));
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(s => s.product_name.Contains(searchString));
+            }
+            int pageNumber = (page ?? 1);
+            int pageSize = 10;
+            return View(products.ToList().ToPagedList(pageNumber, pageSize));
         }
 
         // GET: products/Details/5
         [HttpPost]
         public ActionResult Details(int tempId)
         {
-
-            return PartialView("Details", db.products.Find(tempId));
-            /*
-            product prod = db.products.Where(x=> x.product_id == tempId).FirstOrDefault();
-            ProductsCRUDClass prodClass = new ProductsCRUDClass();
-            prodClass.product_id = Convert.ToInt32(prod.product_id);
-            prodClass.product_name = prod.product_name;
-            prodClass.model_year = prod.model_year;
-            prodClass.list_price = prod.list_price;
-            prodClass.category.category_name = prod.category.category_name;
-            prodClass.brand.brand_name = prod.brand.brand_name;
-            
-            return PartialView(prodClass);
-            */
+            product ProductDB = db.products.Where(x => x.product_id == tempId).FirstOrDefault();
+            DetailsVM newProduct = new DetailsVM();
+            newProduct.product_name = ProductDB.product_name;
+            newProduct.model_year = ProductDB.model_year;
+            newProduct.list_price = ProductDB.list_price;
+            newProduct.brand_name = ProductDB.brand.brand_name;
+            newProduct.category_name = ProductDB.category.category_name;
+            newProduct.Quantities = (
+                        from stock in db.stocks.ToList()
+                        join store in db.stores.ToList() on stock.store_id equals store.store_id
+                        where stock.product_id == tempId
+                        group stock by stock.store.store_name into groupedStores
+                        select new QuantityVM
+                        {
+                            storeName = groupedStores.Key,
+                            quantity = (int)groupedStores.Sum(t => t.quantity)
+                        }).ToList();
+            return new JsonResult { Data = new { product = newProduct }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
-        /*
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            product product = db.products.Find(id);
-            if (product == null)
-            {
-                return HttpNotFound();
-            }
-            return View(product);
-        }
-        */
+        
         // GET: products/Create
-        public PartialViewResult Create()
+        public ActionResult Create()
         {
-            //ViewBag.brand_id = new SelectList(db.brands, "brand_id", "brand_name");
-            //ViewBag.category_id = new SelectList(db.categories, "category_id", "category_name");
-            return PartialView("Create", new Models.ProductsCRUDClass());
+            ViewBag.brand_id = new SelectList(db.brands, "brand_id", "brand_name");
+            ViewBag.category_id = new SelectList(db.categories, "category_id", "category_name");
+            return View();
         }
 
-        public JsonResult Create(product prod)
-        {
-            db.products.Add(prod);
-            db.SaveChanges();
-            return Json(prod, JsonRequestBehavior.AllowGet);
-        }
-
-        // POST: products/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        /*
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "product_id,product_name,brand_id,category_id,model_year,list_price")] product product)
@@ -96,52 +92,55 @@ namespace u18043624_HW06.Views
             ViewBag.category_id = new SelectList(db.categories, "category_id", "category_name", product.category_id);
             return View(product);
         }
-        */
-        // GET: products/Edit/5
-
-        /*
-    public PartialViewResult Edit(int? id)
-    {
-
-        //product prod = db.products.Where(x=> x.product_id == )
-        //return PartialView(product);
-
-    }
-    */
-
-        /*
-        // POST: products/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "product_id,product_name,brand_id,category_id,model_year,list_price")] product product)
+        public JsonResult Edit(int? id)
         {
-            if (ModelState.IsValid)
+            product product = db.products.Find(id);
+            var SerializedProduct = new product
             {
-                db.Entry(product).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            ViewBag.brand_id = new SelectList(db.brands, "brand_id", "brand_name", product.brand_id);
-            ViewBag.category_id = new SelectList(db.categories, "category_id", "category_name", product.category_id);
-            return View(product);
+                product_id = product.product_id,
+                product_name = product.product_name,
+                category_id = product.category_id,
+                brand_id = product.brand_id,
+                list_price = product.list_price,
+                model_year = product.model_year,
+                //brands = db.brands.ToList().Select(x => new brand { brand_id = x.brand_id, brand_name = x.brand_name }).ToList(),
+                //categories = db.categories.ToList().Select(x => new category { category_id = x.category_id, category_name = x.category_name }).ToList()
+            };
+            return new JsonResult { Data = new { product = SerializedProduct }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
-        */
+        [HttpPost]
+        public JsonResult Edit([Bind(Include = "product_id,product_name,brand_id,category_id,model_year,list_price")] product product)
+        {
+            var message = "";
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    db.Entry(product).State = EntityState.Modified;
+                    db.SaveChanges();
+                    message = "200 OK";
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            return new JsonResult { Data = new { status = message }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+
         // GET: products/Delete/5
-        
+
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            product product = db.products.Find(id);
-            if (product == null)
-            {
-                return HttpNotFound();
-            }
-            return View(product);
+            product ProductDB = db.products.Where(x => x.product_id == id).FirstOrDefault();
+            DetailsVM newProduct = new DetailsVM();
+            newProduct.model_year = ProductDB.model_year;
+            newProduct.product_name = ProductDB.product_name;
+            newProduct.list_price = ProductDB.list_price;
+            newProduct.brand_name = ProductDB.brand.brand_name;
+            newProduct.category_name = ProductDB.category.category_name;
+            return new JsonResult { Data = new { product = newProduct }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         // POST: products/Delete/5
